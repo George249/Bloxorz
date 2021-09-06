@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
         }
         // check if win - should move to onther scripit
         if ((((Mathf.Abs(transform.position.x - winSpot.transform.position.x)) < 0.1f) &&
-        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f)))
+        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f)) && isGrounded)
         {
             Debug.Log("WINNER");
             this.GetComponent<Rigidbody>().freezeRotation = true;
