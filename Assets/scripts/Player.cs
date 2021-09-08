@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
     float radius = 1;
     Quaternion preRotation;
     Quaternion postRotation;
-
+    
     public bool isGrounded = true;
     void Start()
     {
@@ -152,14 +152,14 @@ public class Player : MonoBehaviour
     // this method checks if the player hit the ground and enables the movement if it did
     void OnCollisionEnter(Collision theCollision)
     {
-
+      
         string name = theCollision.collider.name;
         Debug.Log(name);
         name = name.Substring(0, 4);
         if (name ==  "Cube")
             isGrounded = true;
         else if (name == "Deat")
-        {
+        {   
             this.GetComponent<Rigidbody>().freezeRotation = true;
             this.GetComponent<BoxCollider>().isTrigger = true;
             FindObjectOfType<GameManager>().EndGame(1f);

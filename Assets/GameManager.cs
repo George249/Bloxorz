@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
-{
-    bool gameHasEnded = false;
+{   
+    bool gameHasEnded = false; 
     public void LevelCompleted()
     {
         Debug.Log("loading next level");
