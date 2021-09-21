@@ -8,16 +8,20 @@ public class Player : MonoBehaviour
     public float duration = 0.3f;
     Vector3 scale;
     [SerializeField] private GameObject winSpot;
+    //[SerializeField] private GameObject BridgeSpot;
+    //[SerializeField] private GameObject followBrirdge;
     public bool isRotating = false;
     float directionX = 0;
     float directionZ = 0;
     float startAngleRad = 0;
+    bool won = false;
     Vector3 startPos;
     float rotationTime = 0;
+    public bool gotZeroLives = false;
     float radius = 1;
     Quaternion preRotation;
     Quaternion postRotation;
-    
+
     public bool isGrounded = true;
     void Start()
     {
@@ -58,9 +62,10 @@ public class Player : MonoBehaviour
         }
         // check if win - should move to onther scripit
         if ((((Mathf.Abs(transform.position.x - winSpot.transform.position.x)) < 0.1f) &&
-        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f))&& isRotating ==false)
+        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f)))
         {
             Debug.Log("WINNER");
+            won = true;
             this.GetComponent<Rigidbody>().freezeRotation = true;
             this.GetComponent<BoxCollider>().isTrigger = true;
             FindObjectOfType<GameManager>().LevelCompleted();
@@ -90,9 +95,14 @@ public class Player : MonoBehaviour
                 rotationTime = 0;
             }
         }
-        if(this.transform.position.y < -1f)
+        if (this.transform.position.y < -1f)
         {
-            FindObjectOfType<GameManager>().EndGame(1f);
+            if (won == false)
+            {
+                Debug.Log(" Fall from somewhere");
+                //FindObjectOfType<GameManager>().EndGame(1f);
+            }
+
         }
     }
 
@@ -152,17 +162,27 @@ public class Player : MonoBehaviour
     // this method checks if the player hit the ground and enables the movement if it did
     void OnCollisionEnter(Collision theCollision)
     {
-      
+
         string name = theCollision.collider.name;
         Debug.Log(name);
         name = name.Substring(0, 4);
-        if (name ==  "Cube")
+        if (name == "Cube")
             isGrounded = true;
         else if (name == "Deat")
-        {   
+        {
             this.GetComponent<Rigidbody>().freezeRotation = true;
             this.GetComponent<BoxCollider>().isTrigger = true;
-            FindObjectOfType<GameManager>().EndGame(1f);
+
+            if (FindObjectOfType<HelpUI>().lives > 0 )
+            {
+                Debug.Log("in player in oncollider funduion on lives != 1");
+                FindObjectOfType<GameManager>().EndGame(1f);
+            }
+            else
+            {
+                Debug.Log("in player in oncollider funduion on else");
+                 FindObjectOfType<HelpUI>().UpdateLivesNumber();
+            }
         }
     }
 }

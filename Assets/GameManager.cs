@@ -4,8 +4,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
-{   
-    bool gameHasEnded = false; 
+{
+    bool gameHasEnded = false;
+    HelpUI Livestext;
+
+    private void Start()
+    {
+        Livestext = FindObjectOfType<HelpUI>();
+    }
+
     public void LevelCompleted()
     {
         Debug.Log("loading next level");
@@ -22,6 +29,7 @@ public class GameManager : MonoBehaviour
         {
             gameHasEnded = true;
             Debug.Log("ending game");
+            Livestext.UpdateLivesNumber();
             Invoke("Restart", x);
         }
     }
