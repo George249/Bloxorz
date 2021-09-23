@@ -10,6 +10,10 @@ public class HelpUI : MonoBehaviour
     {
         DontDestroyOnLoad(this.gameObject);
     }
+    public void Menu_button()
+    {
+        SceneManager.LoadScene("Main");
+    }
 
     public void UpdateLivesNumber()
     {

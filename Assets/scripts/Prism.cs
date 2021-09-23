@@ -63,8 +63,8 @@ public class Prism : MonoBehaviour
             this.transform.position -= new Vector3(0, 0.1f, 0);
         }
         // check if win - should move to onther scripit
-        if ((transform.position.x == winSpot.transform.position.x) &&
-        (transform.position.z == winSpot.transform.position.z) &&isRotating==false)
+       if ((((Mathf.Abs(transform.position.x - winSpot.transform.position.x)) < 0.1f) &&
+        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f))&& isRotating==false)
         {
             Debug.Log("WINNER");
             won = true;
@@ -82,9 +82,9 @@ public class Prism : MonoBehaviour
             float ratio = Mathf.Lerp(0, 1, rotationTime / duration);
 
             float rotAng = Mathf.Lerp(0, Mathf.PI / 2f, ratio);
-            float distanceX = directionX * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
+            float distanceX = -directionX * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
             float distanceY = 0;
-            float distanceZ = -directionZ * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
+            float distanceZ = directionZ * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
             transform.position = new Vector3(startPos.x + distanceX, startPos.y + distanceY, startPos.z + distanceZ);
 
             transform.rotation = Quaternion.Lerp(preRotation, postRotation, ratio);
@@ -122,27 +122,39 @@ public class Prism : MonoBehaviour
         {                       // moving direction is the same as x of object
             if (Mathf.Abs(Vector3.Dot(transform.up, nomVec)) > 0.99)
             {                   // y axis of global is the same as y of object
-                radius = Mathf.Sqrt(Mathf.Pow(scale.x / 2f, 2f) + Mathf.Pow(scale.y / 2f, 2f));
+                radius = Mathf.Sqrt(Mathf.Pow(scale.x / 4f, 4f) + Mathf.Pow(scale.y / 4f, 4f));
                 startAngleRad = Mathf.Atan2(scale.y, scale.x);
             }
             else if (Mathf.Abs(Vector3.Dot(transform.forward, nomVec)) > 0.99)
             {       // y axis of global is the same as z of object
-                radius = Mathf.Sqrt(Mathf.Pow(scale.x / 2f, 2f) + Mathf.Pow(scale.z / 2f, 2f));
+                radius = Mathf.Sqrt(Mathf.Pow(scale.x / 4f, 4f) + Mathf.Pow(scale.z / 4f, 4f));
                 startAngleRad = Mathf.Atan2(scale.z, scale.x);
             }
 
         }
-    
+          else if (Mathf.Abs(Vector3.Dot(transform.up, dirVec)) > 0.99)
+        {                   // moving direction is the same as y of object
+            if (Mathf.Abs(Vector3.Dot(transform.right, nomVec)) > 0.99)
+            {                   // y of global is the same as x of object
+                radius = Mathf.Sqrt(Mathf.Pow(scale.y / 2f, 2f) + Mathf.Pow(scale.x / 2f, 2f));
+                startAngleRad = Mathf.Atan2(scale.x, scale.y);
+            }
+            else if (Mathf.Abs(Vector3.Dot(transform.forward, nomVec)) > 0.99)
+            {       // y axis of global is the same as z of object
+                radius = Mathf.Sqrt(Mathf.Pow(scale.y / 2f, 2f) + Mathf.Pow(scale.z / 2f, 2f));
+                startAngleRad = Mathf.Atan2(scale.z, scale.y);
+            }
+        }
         else if (Mathf.Abs(Vector3.Dot(transform.forward, dirVec)) > 0.99)
         {           // moving direction is the same as z of object
             if (Mathf.Abs(Vector3.Dot(transform.right, nomVec)) > 0.99)
             {                   // y of global is the same as x of object
-                radius = Mathf.Sqrt(Mathf.Pow(scale.z / 2f, 2f) + Mathf.Pow(scale.x / 2f, 2f));
+                radius = Mathf.Sqrt(Mathf.Pow(scale.z / 4f, 4f) + Mathf.Pow(scale.x / 4f, 4f));
                 startAngleRad = Mathf.Atan2(scale.x, scale.z);
             }
             else if (Mathf.Abs(Vector3.Dot(transform.up, nomVec)) > 0.99)
             {               // y axis of global is the same as y of object
-                radius = Mathf.Sqrt(Mathf.Pow(scale.z / 2f, 2f) + Mathf.Pow(scale.y / 2f, 2f));
+                radius = Mathf.Sqrt(Mathf.Pow(scale.z / 4f,4f) + Mathf.Pow(scale.y / 4f, 4f));
                 startAngleRad = Mathf.Atan2(scale.y, scale.z);
             }
         }
