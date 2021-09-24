@@ -18,15 +18,15 @@ public class HelpUI : MonoBehaviour
     public void UpdateLivesNumber()
     {
         lives--;
-        if (lives > 0)
+        if (lives >= 0)
         {
             FindObjectOfType<Lives>().UpdateTheLives(lives);
         }
         else
         { 
             lives = 3;
-            hadelLoadingPreviousScene();
-            FindObjectOfType<Lives>().UpdateTheLives(lives);
+            Invoke("hadelLoadingPreviousScene", 1f);
+            
         }
     }
     public void hadelLoadingPreviousScene()
@@ -43,5 +43,6 @@ public class HelpUI : MonoBehaviour
             CurrentSceneNum -= 1;
         }
         SceneManager.LoadScene(CurrentSceneNum);
+        FindObjectOfType<Lives>().UpdateTheLives(lives);
     }
 }

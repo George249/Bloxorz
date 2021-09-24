@@ -25,7 +25,7 @@ public class MovingCube : MonoBehaviour
     {
         toPoint = points[index];
         this.transform.position = Vector3.MoveTowards(this.transform.position, toPoint, speed * Time.deltaTime);
-        if (Mathf.Abs(this.transform.position.x - toPoint.x) < 0.1f && Mathf.Abs(this.transform.position.z - toPoint.z) < 0.1f)
+        if (Mathf.Abs(this.transform.position.x - toPoint.x) < 0.1f && Mathf.Abs(this.transform.position.z - toPoint.z) < 0.01f)
         {
             this.transform.position = toPoint;
             index = (index + 1) % 4;
