@@ -38,8 +38,8 @@
   <ItemGroup>
      <Compile Include="Assets\scripts\TimerGround.cs" />
      <Compile Include="Assets\scripts\LevelController.cs" />
-     <Compile Include="Assets\scripts\tetrahedron.cs" />
      <Compile Include="Assets\scripts\Lives.cs" />
+     <Compile Include="Assets\scripts\Prism.cs" />
      <Compile Include="Assets\scripts\MainMenuScript.cs" />
      <Compile Include="Assets\scripts\GameManager.cs" />
      <Compile Include="Assets\scripts\Player.cs" />
@@ -48,7 +48,6 @@
      <Compile Include="Assets\GameManager.cs" />
      <Compile Include="Assets\scripts\HelpUI.cs" />
      <Compile Include="Assets\scripts\MovingCube.cs" />
-     <Compile Include="Assets\scripts\Prism.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />

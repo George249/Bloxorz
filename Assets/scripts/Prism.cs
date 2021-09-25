@@ -25,6 +25,7 @@ public class Prism : MonoBehaviour
     Quaternion postRotation;
 
     public bool isGrounded = true;
+    public bool isFall = false;
     void Start()
     {
         scale = transform.lossyScale;
@@ -103,6 +104,8 @@ public class Prism : MonoBehaviour
             {
                 Debug.Log(" Fall from somewhere");
                 //FindObjectOfType<GameManager>().EndGame(1f);
+                isFall = true;
+                Invoke("Falling",1f);
             }
 
         }
@@ -160,13 +163,28 @@ public class Prism : MonoBehaviour
         }
     }
     
+
+    void Falling()
+    {
+        this.GetComponent<Rigidbody>().freezeRotation = true;
+        this.GetComponent<BoxCollider>().isTrigger = true;
+        if (FindObjectOfType<HelpUI>().lives > 0 )
+        {
+            Debug.Log("in player in oncollider funduion on lives != 1");
+            FindObjectOfType<GameManager>().EndGame(1f);
+        }
+        else
+        {
+            Debug.Log("in player in oncollider funduion on else");
+                FindObjectOfType<HelpUI>().UpdateLivesNumber();
+        }
+    }
     void OnCollisionEnter(Collision theCollision)
     {
-
         string name = theCollision.collider.name;
         Debug.Log(name);
         name = name.Substring(0, 4);
-        if (name == "Prism")
+        if (name == "Pris")
             isGrounded = true;
         
     }
