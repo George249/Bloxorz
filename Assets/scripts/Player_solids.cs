@@ -5,8 +5,16 @@ using System;
 
 public class Player_solids : MonoBehaviour
 {
+    [SerializeField] bool useUniformDistance;
+    [SerializeField] float tileScale;
+    [SerializeField] Transform ground;
+    [SerializeField] Mesh groundMesh;
     [SerializeField] Mesh mesh;
+    Vector3 targetPos;
     Quaternion rotation;
+
+
+    GameObject previewObj;
 
     public float duration = 0.3f;
     Vector3 scale;
@@ -26,8 +34,42 @@ public class Player_solids : MonoBehaviour
     Quaternion postRotation;
 
     public bool isGrounded = true;
+
+    Vector3 defaultAnchorPoint;
+
+    Vector3 GetHighestVertex (Transform tr, Mesh msh) {
+        float maxZ = -Mathf.Infinity;
+        Vector3 highest = new Vector3();
+        foreach (Vector3 vertex in msh.vertices) {
+            Vector3 transformed = tr.TransformPoint(vertex);
+            if (transformed.z > maxZ) {
+                maxZ = transformed.z;
+                highest = vertex;
+            }
+        }
+
+        return highest;
+    }
+
+    Vector3 GetClosestVertex (Vector3 pos, Transform tr, Mesh msh) { 
+        float minDist = Mathf.Infinity;
+        Vector3 closest = new Vector3();
+        foreach (Vector3 vertex in msh.vertices) {
+            Vector3 transformed = tr.TransformPoint(vertex);
+            float dist = Vector3.Distance(pos, transformed);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = vertex;
+            }
+        }
+        return closest;
+    }
+
     void Start()
     {
+        previewObj = new GameObject();
+        previewObj.transform.localScale = transform.localScale;
+
         if (winSpot == null)
             winSpot = GameObject.Find("WinSpot");
 
@@ -40,6 +82,19 @@ public class Player_solids : MonoBehaviour
         //Debug.Log("[x, y, z] = [" + scale.x + ", " + scale.y + ", " + scale.z + "]");
         this.transform.GetComponent<Rigidbody>().velocity = new Vector3(0, -50, 0);
         Debug.Log(winSpot.transform.position);
+    }
+
+    Transform GetNearestTile(Vector3 position, Vector3 direction)
+    {
+        position.y = ground.GetChild(0).position.y;
+        RaycastHit hit;
+        if (Physics.Raycast(position, direction.normalized, out hit)) {
+            if (hit.transform.tag == "Ground") {
+                return hit.transform;
+            }
+        }
+
+        return null;
     }
 
     void Update()
@@ -84,8 +139,8 @@ public class Player_solids : MonoBehaviour
     }
 
     Quaternion GetRotation () {
+        //Step 1: Get the rotation needed to move the appropriate face flat.
         Vector3 desiredNormal = new Vector3(-directionX, 0, directionZ);
-        print(desiredNormal);
         Vector3 chosenNormal = transform.TransformDirection(mesh.normals[0]);
         foreach (Vector3 normal in mesh.normals) {
             Vector3 localNormal = transform.TransformDirection(normal);
@@ -99,7 +154,55 @@ public class Player_solids : MonoBehaviour
         Debug.DrawRay(transform.position, chosenNormal, Color.green, 5f);
         Debug.DrawRay(transform.position, Vector3.down, Color.red, 5f);
 
-        return FromToRotation(chosenNormal, Vector3.down) * transform.rotation;
+        Quaternion flatRot = FromToRotation(chosenNormal, Vector3.down) * transform.rotation;
+        previewObj.transform.rotation = flatRot;
+
+        Vector3 directionVector = new Vector3(-directionX * tileScale, 0, directionZ * tileScale);
+        Transform targetTile = GetNearestTile(transform.position, directionVector);
+
+        if (targetTile != null) {
+            targetPos = targetTile.position;
+            targetPos.y = transform.position.y;
+            previewObj.transform.position = targetPos;
+
+            //Step 2: Align one of the vertices on the player mesh to the base mesh
+            Vector3 anchorPoint = previewObj.transform.TransformPoint(GetHighestVertex(previewObj.transform, mesh));
+            Vector3 pointOnTile = targetTile.TransformPoint(GetClosestVertex(anchorPoint, targetTile, groundMesh));
+            Debug.DrawRay(anchorPoint, Vector3.up * 10, Color.red, 10f);
+            Debug.DrawRay(pointOnTile, Vector3.up * 10, Color.blue, 10f);
+
+            //Step 3: Adjust target position so it lines up
+            targetPos += pointOnTile - anchorPoint;
+
+            //Step 4: Rotate the player so that at least one edge aligns with the base mesh
+            Vector3 tileVert = targetTile.InverseTransformPoint(pointOnTile);
+            Vector3 neighbour = targetTile.TransformPoint(GetNeighbouringVertex(tileVert, groundMesh));
+            
+            Debug.DrawLine(neighbour, pointOnTile, Color.blue, 5f);
+            
+            Vector3 dirTile = neighbour - pointOnTile;
+            Vector3 dirPlayer = previewObj.transform.TransformPoint(GetClosestVertex(neighbour, previewObj.transform, mesh)) - anchorPoint;
+
+            Debug.DrawLine(previewObj.transform.TransformPoint(GetClosestVertex(neighbour, previewObj.transform, mesh)), anchorPoint, Color.red, 5f);
+            
+            previewObj.transform.rotation = FromToRotation(dirPlayer, dirTile) * previewObj.transform.rotation;
+        } else {
+            targetPos = transform.position + directionVector;
+        }
+
+        return previewObj.transform.rotation;
+    }
+
+    Vector3 GetNeighbouringVertex (Vector3 currentVertex, Mesh msh) {
+        foreach (Vector3 vert in msh.vertices) {
+            if (vert != currentVertex) {
+                if (vert.y == currentVertex.y) {
+                    return vert;
+                }
+            }
+        }
+
+        return currentVertex;
     }
 
     public static Quaternion FromToRotation(Vector3 aFrom, Vector3 aTo)
@@ -109,10 +212,10 @@ public class Player_solids : MonoBehaviour
         return Quaternion.AngleAxis(angle, axis.normalized);
     }
 
-
-
     void FixedUpdate()
     {
+        GetComponent<Rigidbody>().isKinematic = isRotating;
+
         if (isRotating)
         {
             rotationTime += Time.fixedDeltaTime;
@@ -122,7 +225,14 @@ public class Player_solids : MonoBehaviour
             float distanceX = -directionX * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
             float distanceY = radius * (Mathf.Sin(startAngleRad + rotAng) - Mathf.Sin(startAngleRad));
             float distanceZ = directionZ * radius * (Mathf.Cos(startAngleRad) - Mathf.Cos(startAngleRad + rotAng));
-            transform.position = new Vector3(startPos.x + distanceX, startPos.  y + distanceY, startPos.z + distanceZ);
+
+            if(!useUniformDistance) {
+                transform.position = new Vector3(startPos.x + distanceX, startPos.y + distanceY, startPos.z + distanceZ);
+            } else {
+                Vector3 adjustedTargetPos = targetPos;
+                adjustedTargetPos.y += distanceY;
+                transform.position = Vector3.Lerp(startPos, adjustedTargetPos, ratio);
+            }
 
             transform.rotation = Quaternion.Lerp(preRotation, postRotation, ratio);
 
@@ -203,10 +313,10 @@ public class Player_solids : MonoBehaviour
     void OnCollisionEnter(Collision theCollision)
     {
 
+        string tag = theCollision.collider.tag;
         string name = theCollision.collider.name;
         //Debug.Log(name);
-        name = name.Substring(0, 4);
-        if (name == "Cube")
+        if (tag == "Ground" || name.Substring(0,4) == "Cube")
             isGrounded = true;
         else if (name == "Deat")
         {
