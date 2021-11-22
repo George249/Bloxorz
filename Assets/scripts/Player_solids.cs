@@ -127,8 +127,8 @@ public class Player_solids : MonoBehaviour
             this.transform.position -= new Vector3(0, 0.1f, 0);
         }
         // check if win - should move to onther scripit
-        if ((((Mathf.Abs(transform.position.x - winSpot.transform.position.x)) < 0.1f) &&
-        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.1f))&& isRotating==false)
+        if ((((Mathf.Abs(transform.position.x - winSpot.transform.position.x)) < 0.6f) &&
+        ((Mathf.Abs(transform.position.z - winSpot.transform.position.z)) < 0.6f))&& isRotating==false)
         {
             Debug.Log("WINNER");
             won = true;
