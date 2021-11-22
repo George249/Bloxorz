@@ -25,11 +25,11 @@ public class HelpUI : MonoBehaviour
         else
         { 
             lives = 3;
-            Invoke("hadelLoadingPreviousScene", 1f);
+            Invoke("handleLoadingPreviousScene", 1f);
             
         }
     }
-    public void hadelLoadingPreviousScene()
+    public void handleLoadingPreviousScene()
     {
         Debug.Log(" in hande previous loading");
         int CurrentSceneNum = SceneManager.GetActiveScene().buildIndex;

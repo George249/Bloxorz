@@ -51,7 +51,7 @@ public class SpotExplode : MonoBehaviour {
         if (stillThere){
         gameObject.SetActive(false);
         
-        //loop 3 times to create 5x5x5 pieces in x,y,z coordinates
+        //loop 3 times to create 2x2x2 pieces in x,y,z coordinates
         for (int x = 0; x < cubesInRow; x++) {
             for (int y = 0; y < cubesInRow; y++) {
                 for (int z = 0; z < cubesInRow; z++) {
